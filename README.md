@@ -18,6 +18,21 @@ bundle
 bundle exec rails g spree_khipu:install
 ```
 
+Configuration
+----------------
+Add `config/khipu.yml` if you want to configure the protocol or domain in URLs to send:
+```ruby
+development:
+  protocol: 'http'
+staging:
+  protocol: 'https'
+production:
+  domain_url: 'https://mydomain.com'
+```
+The `domain_url` option has higher priority than `protocol` option.
+
+If you use multistore configuration with the `spree-multi-domain` gem, customize the subject email using the tag `%current_store%`  in the desired location.
+
 Testing
 -------
 
