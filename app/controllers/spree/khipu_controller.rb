@@ -5,7 +5,6 @@ module Spree
   require 'khipu'
 
   class KhipuController < StoreController
-    ssl_allowed
     protect_from_forgery except: [:notify]
 
     def pay
