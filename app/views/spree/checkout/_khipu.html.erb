@@ -13,6 +13,6 @@
 </div>
 
 <div class="well text-right form-buttons" data-hook="buttons">
-  <%= link_to Spree.t(:save_and_continue), khipu_url(:payment_method_id => payment_method.id), :method => :get, :id => "khipu_button" , :class => 'continue button primary' %>
+  <%= link_to Spree.t(:save_and_continue), khipu_url(:payment_method_id => @payment.payment_method.id), :method => :get, :id => "khipu_button" , :class => 'continue button primary' %>
   <script>Spree.disableSaveOnClick();</script>
 </div>

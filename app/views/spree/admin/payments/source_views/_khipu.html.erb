@@ -1,8 +1,8 @@
 <% model_class = Spree::KhipuPaymentReceipt %>
 <% if payment.khipu_payment_method? %>
   <dl>
-    <dt><%= Spree::Payment.human_attribute_name(:identifier) %></dt>
-    <dd><%= payment.identifier %></dd>
+    <dt><%= Spree::Payment.human_attribute_name(:number) %></dt>
+    <dd><%= payment.number %></dd>
 
     <dt><%= Spree::Payment.human_attribute_name(:trx_id) %></dt>
     <dd><%= payment.trx_id %></dd>

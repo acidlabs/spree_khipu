@@ -26,7 +26,7 @@ module Spree
     end
 
     def success
-      @payment = Spree::Payment.where(identifier: params[:payment]).last
+      @payment = Spree::Payment.where(number: params[:payment]).last
       @order = @payment.order
       @khipu_receipt = @payment.khipu_payment_receipt
 
@@ -38,13 +38,13 @@ module Spree
       redirect_to khipu_cancel_path(params) and return  if @payment.failed?
 
       flash.notice = Spree.t(:order_processed_successfully)
-      flash[:commerce_tracking] = "nothing special" # asume a complete payment for analytics and others callbacks in view
+      flash['order_completed'] = true # asume a complete payment for analytics and others callbacks in view
 
       redirect_to completion_route(@order)
     end
 
     def cancel
-      @payment = Spree::Payment.where(identifier: params[:payment]).last
+      @payment = Spree::Payment.where(number: params[:payment]).last
       @khipu_receipt = @payment.khipu_payment_receipt
 
       redirect_to checkout_state_path(:payment) and return
@@ -56,7 +56,7 @@ module Spree
         payment_notification = provider.get_payment_notification(params)
 
         # Aceptar el pago
-        @payment = Spree::Payment.where(identifier: payment_notification["transaction_id"]).last
+        @payment = Spree::Payment.where(number: payment_notification["transaction_id"]).last
 
         render  nothing: true, status: :ok and return if @payment.order.payment_state == 'paid'
 
@@ -97,7 +97,7 @@ module Spree
         payer_email:    payment.order.email,
         bank_id:        "",
         expires_date:   "",
-        transaction_id: payment.identifier,
+        transaction_id: payment.number,
         custom:         "",
         notify_url:     notify_url,
         return_url:    return_url,
@@ -109,9 +109,9 @@ module Spree
     # Return URL in [notify_url, success_url, cancel_url] format
     def get_urls payment
       if KhipuConfig::PROTOCOL
-        [ KhipuConfig::DOMAIN_URL ? "#{KhipuConfig::DOMAIN_URL}#{khipu_notify_path}" : khipu_notify_url(protocol: KhipuConfig::PROTOCOL), khipu_success_url(payment.identifier, protocol: KhipuConfig::PROTOCOL), khipu_cancel_url(payment.identifier, protocol: KhipuConfig::PROTOCOL) ]
+        [ KhipuConfig::DOMAIN_URL ? "#{KhipuConfig::DOMAIN_URL}#{khipu_notify_path}" : khipu_notify_url(protocol: KhipuConfig::PROTOCOL), khipu_success_url(payment.number, protocol: KhipuConfig::PROTOCOL), khipu_cancel_url(payment.number, protocol: KhipuConfig::PROTOCOL) ]
       else # without custom config
-        [KhipuConfig::DOMAIN_URL ? "#{KhipuConfig::DOMAIN_URL}#{khipu_notify_path}" : khipu_notify_url, khipu_success_url(payment.identifier), khipu_cancel_url(payment.identifier)]
+        [KhipuConfig::DOMAIN_URL ? "#{KhipuConfig::DOMAIN_URL}#{khipu_notify_path}" : khipu_notify_url, khipu_success_url(payment.number), khipu_cancel_url(payment.number)]
       end
     end
 
@@ -141,7 +141,7 @@ module Spree
     end
 
     def payment_method
-      params[:payment_method_id] ? (Spree::PaymentMethod.find(params[:payment_method_id]) || Spree::Payment.where(identifier: khipu_params[:transaction_id]).last.payment_method) : Spree::PaymentMethod.where(type: "Spree::Gateway::KhipuGateway").last
+      params[:payment_method_id] ? (Spree::PaymentMethod.find(params[:payment_method_id]) || Spree::Payment.where(number: khipu_params[:transaction_id]).last.payment_method) : Spree::PaymentMethod.where(type: "Spree::Gateway::KhipuGateway").last
     end
 
     def provider
